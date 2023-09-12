@@ -1,0 +1,114 @@
+Wrote profile results to main.py.lprof
+Timer unit: 1e-06 s
+
+Total time: 223.646 s
+File: src/main.py
+Function: make_directory_list_by_pathobject at line 13
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    13                                           @profile
+    14                                           def make_directory_list_by_pathobject(targets) -> list:
+    15      1600       3476.2      2.2      0.0      if len(targets) == 0:
+    16       400        207.8      0.5      0.0          return []
+    17                                           
+    18      1200       1586.6      1.3      0.0      if isinstance(targets, str):
+    19       400     132109.9    330.3      0.1          targets = [Path(targets).resolve()]
+    20                                           
+    21      1200     318575.7    265.5      0.1      logger.debug('start')
+    22                                               #logger.debug(targets)
+    23                                           
+    24      1200   26760893.7  22300.7     12.0      target_dirs = [d for d in targets if d.is_dir()]
+    25      1200     430370.2    358.6      0.2      logger.debug('create under list')
+    26      1200  194705467.6 162254.6     87.1      under_dirs = [d for f in target_dirs for d in f.iterdir() if d.is_dir()]
+    27      1200     467273.5    389.4      0.2      logger.debug('recursive under list')
+    28      1200      12502.1     10.4      0.0      result = make_directory_list_by_pathobject(under_dirs)
+    29      1200     242717.5    202.3      0.1      logger.debug('fin recursive')
+    30      1200      48796.9     40.7      0.0      result += target_dirs
+    31                                           
+    32      1200     269449.7    224.5      0.1      logger.debug('fin')
+    33      1200     251876.2    209.9      0.1      logger.debug(len(result))
+    34      1200        693.7      0.6      0.0      return result
+
+Total time: 412.874 s
+File: src/main.py
+Function: make_directory_list_by_ospath at line 36
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    36                                           @profile
+    37                                           def make_directory_list_by_ospath(targets) -> list:
+    38       400       1526.1      3.8      0.0      if len(targets) == 0:
+    39                                                   return []
+    40                                               
+    41       400     105714.5    264.3      0.0      logger.debug('start')
+    42                                               #logger.debug(targets)
+    43                                               
+    44       400        285.8      0.7      0.0      result = []
+    45                                           
+    46       400        165.8      0.4      0.0      target_directories = targets
+    47   4121200    5120904.0      1.2      1.2      while len(target_directories) != 0:
+    48   4120800   10671352.5      2.6      2.6          d = target_directories.pop(0)
+    49                                           
+    50   4120800   51292204.4     12.4     12.4          if not os.path.isdir(d):
+    51   2060400    1101891.3      0.5      0.3              continue
+    52                                           
+    53   2060400   63329180.5     30.7     15.3          result.append(os.path.abspath(d))
+    54                                           
+    55   6180800   62976607.4     10.2     15.3          for under_file in os.listdir(d):
+    56   4120400   47748232.0     11.6     11.6              if not os.path.isdir(d):
+    57                                                           continue
+    58   4120400   40921017.7      9.9      9.9              joined_under_file = os.path.join(d, under_file)
+    59   4120400  129369425.5     31.4     31.3              target_directories.append(os.path.abspath(joined_under_file))
+    60                                           
+    61       400     153237.6    383.1      0.0      logger.debug('fin')
+    62       400      81640.1    204.1      0.0      logger.debug(len(result))
+    63       400        288.9      0.7      0.0      return result
+
+Total time: 197.385 s
+File: src/main.py
+Function: make_directory_list_by_ospath_recursive at line 65
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    65                                           @profile
+    66                                           def make_directory_list_by_ospath_recursive(targets) -> list:
+    67      2000      16996.0      8.5      0.0      if len(targets) == 0:
+    68       400        203.8      0.5      0.0          return []
+    69                                               
+    70      1600     660561.2    412.9      0.3      logger.debug('start')
+    71                                               #logger.debug(targets)
+    72                                               
+    73      1600  107208380.0  67005.2     54.3      result_in_result = [os.path.abspath(d) for d in targets if os.path.isdir(d) ]    
+    74      1600   88660642.0  55412.9     44.9      under_dir = [os.path.join(d, under_path) for d in result_in_result for under_path in os.listdir(d)]
+    75      1600      31524.7     19.7      0.0      result = make_directory_list_by_ospath_recursive(under_dir)
+    76      1600      50114.5     31.3      0.0      result += result_in_result
+    77                                           
+    78      1600     446961.4    279.4      0.2      logger.debug('fin')
+    79      1600     308528.7    192.8      0.2      logger.debug(len(result))
+    80      1600        877.9      0.5      0.0      return result
+
+Total time: 222.42 s
+File: src/main.py
+Function: make_directory_list_by_glob at line 82
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    82                                           @profile
+    83                                           def make_directory_list_by_glob(targets : list) -> list:
+    84       400       1213.8      3.0      0.0      if len(targets) == 0:
+    85                                                   return []
+    86                                               
+    87       400        719.3      1.8      0.0      if isinstance(targets, str):
+    88                                                   targets = [targets]
+    89                                           
+    90       400      93938.8    234.8      0.0      logger.debug('start')
+    91                                           
+    92       400      18392.9     46.0      0.0      path_pattern = [os.path.join(pat, '**', '') for pat in targets]
+    93       400  221981148.8 554952.9     99.8      result = glob.glob(*path_pattern, recursive=True)
+    94                                           
+    95       400     221616.4    554.0      0.1      logger.debug('fin')
+    96       400     102943.8    257.4      0.0      logger.debug(len(result))
+    97                                               
+    98       400        195.6      0.5      0.0      return result
+
